@@ -1,4 +1,5 @@
 name: Build
+
 on:
   push:
     paths:
@@ -15,55 +16,67 @@ jobs:
     name: Build
     runs-on: windows-latest
     strategy:  
-       matrix:  
-         configuration: [Debug, Release]
+      matrix:  
+        configuration: [Release] # 日常构建建议单打 Release；如需 Debug 可写为 [Debug, Release]
 
     steps:
-
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 1
-        submodules: true
+        fetch-depth: 0 # 设为 0 以支持 git describe 读取 tag 距离
+        submodules: recursive
 
     - name: Set Describe
       shell: bash
       run: |
-          describe=`git describe --tags --always`
-          echo "describe=$describe" >> $GITHUB_ENV
+        describe=$(git describe --tags --always)
+        echo "describe=$describe" >> $GITHUB_ENV
 
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v3
+      uses: microsoft/setup-msbuild@v2
       with:
         msbuild-architecture: x64
-    
+
     - name: Update Help
-      run:  |
-        Set-Location ..
-        git clone https://github.com/LTCatt/PCL2Help.git -b master --single-branch --depth 1
-        Set-Location PCL2Help
-        Remove-Item -Path *.* -Recurse -Force
-        Compress-Archive -Path .\* -DestinationPath .\Help.zip
-        Copy-Item -Path .\Help.zip -Destination "${{ GITHUB.WORKSPACE }}\Plain Craft Launcher 2\Resources\Help.zip" -Force
-        Set-Location ..
-        Remove-Item PCL2Help -Recurse -Force
-        Set-Location ${{ GITHUB.WORKSPACE }}
-
-
-    - name: Replace
+      shell: pwsh
       run: |
-        (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "")', 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "${{ secrets.CLIENT_ID }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
-        (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")', 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "${{ secrets.CURSEFORGE_API_KEY }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
-        (gc "Plain Craft Launcher 2\Modules\Base\ModBase.vb") -replace 'Public Const CommitHash As String = ""', 'Public Const CommitHash As String = "${{ github.sha }}"' | Out-File "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
+        git clone https://github.com/LTCatt/PCL2Help.git -b master --single-branch --depth 1 temp_help
+        Compress-Archive -Path .\temp_help\* -DestinationPath "${{ github.workspace }}\Plain Craft Launcher 2\Resources\Help.zip" -Force
+        Remove-Item -Path temp_help -Recurse -Force
+
+    - name: Replace Secrets and Commit Hash
+      shell: pwsh
+      run: |
+        $secretFile = "Plain Craft Launcher 2\Modules\ModSecret.vb"
+        $baseFile = "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
         
-    - name: Restore NuGet Packages
-      run: dotnet restore PCLCS\PCLCS.csproj
+        # 替换 Client ID 和 API Key（若仓库未配置 Secrets 则保留空值或默认值）
+        $clientId = "${{ secrets.CLIENT_ID }}"
+        $cfKey = "${{ secrets.CURSEFORGE_API_KEY }}"
+        
+        if ($clientId) {
+          (Get-Content $secretFile -Encoding utf8) -replace 'Public OAuthClientId As String = If\(Environment\.GetEnvironmentVariable\("PCL_MS_CLIENT_ID"\), ""\)', "Public OAuthClientId As String = If(Environment.GetEnvironmentVariable(`"PCL_MS_CLIENT_ID`"), `"$clientId`")" | Set-Content $secretFile -Encoding utf8
+        }
+        if ($cfKey) {
+          (Get-Content $secretFile -Encoding utf8) -replace 'Public CurseForgeAPIKey As String = If\(Environment\.GetEnvironmentVariable\("PCL_CURSEFORGE_API_KEY"\), ""\)', "Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable(`"PCL_CURSEFORGE_API_KEY`"), `"$cfKey`")" | Set-Content $secretFile -Encoding utf8
+        }
+        
+        (Get-Content $baseFile -Encoding utf8) -replace 'Public Const CommitHash As String = ""', 'Public Const CommitHash As String = "${{ github.sha }}"' | Set-Content $baseFile -Encoding utf8
+
+    - name: Restore Dependencies
+      run: |
+        dotnet restore "PCLCS\PCLCS.csproj"
+        nuget restore "Plain Craft Launcher 2.sln"
 
     - name: Build
-      run: msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" -p:Configuration=${{ matrix.configuration }}
+      run: |
+        msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" /p:Configuration=${{ matrix.configuration }} /p:Platform="Any CPU" /m
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.configuration }} ${{ env.describe }}
-        path: Plain Craft Launcher 2\obj\${{ matrix.configuration }}\Plain Craft Launcher 2.exe
+        name: Dream-Craft-Launcher-${{ matrix.configuration }}-${{ env.describe }}
+        path: |
+          Plain Craft Launcher 2\bin\${{ matrix.configuration }}\**\*.exe
+          Plain Craft Launcher 2\bin\${{ matrix.configuration }}\**\*.dll
+        if-no-files-found: error
