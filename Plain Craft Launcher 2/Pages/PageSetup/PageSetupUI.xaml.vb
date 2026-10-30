@@ -498,10 +498,8 @@ Refresh:
             If OtherAvaliableCount = 1 AndAlso Not HiddenForceShow Then
                 If Not Settings.Get(Of Boolean)("UiHiddenOtherHelp") Then
                     FrmMain.BtnTitleSelect4.Text = "帮助"
-                ElseIf Not Settings.Get(Of Boolean)("UiHiddenOtherAbout") Then
-                    FrmMain.BtnTitleSelect4.Text = "关于"
                 Else
-                    FrmMain.BtnTitleSelect4.Text = "百宝箱"
+                    FrmMain.BtnTitleSelect4.Text = "关于"
                 End If
             Else
                 FrmMain.BtnTitleSelect4.Text = "更多"
