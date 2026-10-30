@@ -4,6 +4,18 @@ Public Class PageSetupUI
         '重复加载部分
         PanBack.ScrollToHome()
         ThemeCheckAll(True)
+
+        '强制解锁所有主题选项
+        For Each Control In PanLauncherTheme.Children
+            If TypeOf Control Is MyRadioBox Then
+                CType(Control, MyRadioBox).IsEnabled = True
+            ElseIf TypeOf Control Is TextBlock AndAlso CType(Control, TextBlock).Name.StartsWith("LabLauncherTheme") Then
+                CType(Control, TextBlock).Visibility = Visibility.Collapsed
+            End If
+        Next
+        RadioLauncherTheme5.Opacity = 1
+        RadioLauncherTheme5Gray.Visibility = Visibility.Collapsed
+        LabLauncherTheme5Unlock.Visibility = Visibility.Collapsed
         If ThemeDontClick <> 0 Then
             Dim NewText As String = Nothing
             Select Case ThemeDontClick
@@ -28,7 +40,8 @@ Public Class PageSetupUI
 
         SliderLoad()
 
-        If BuildType = BuildTypes.Release Then PanLauncherHide.Visibility = Visibility.Visible
+        '解除赞助遮罩，确保主题设置始终可见
+        PanLauncherHide.Visibility = Visibility.Collapsed
 
         '设置解锁
         If Not RadioLauncherTheme8.IsEnabled Then LabLauncherTheme8Copy.ToolTip = $"累积赞助达到 ¥23.33 后，在爱发电私信发送【土豆 {Identify}】以解锁。" & vbCrLf & "右键打开赞助页面，如果觉得 PCL 做得还不错就支持一下吧 =w=！"

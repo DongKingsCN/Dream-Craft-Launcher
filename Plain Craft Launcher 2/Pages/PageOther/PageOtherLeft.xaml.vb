@@ -7,7 +7,7 @@ Public Class PageOtherLeft
         Dim IsHiddenPage As Boolean = False
         If ItemHelp.Checked AndAlso Settings.Get(Of Boolean)("UiHiddenOtherHelp") Then IsHiddenPage = True
         If ItemAbout.Checked AndAlso Settings.Get(Of Boolean)("UiHiddenOtherAbout") Then IsHiddenPage = True
-        If ItemTest.Checked AndAlso Settings.Get(Of Boolean)("UiHiddenOtherTest") Then IsHiddenPage = True
+        'If ItemTest.Checked AndAlso Settings.Get(Of Boolean)("UiHiddenOtherTest") Then IsHiddenPage = True
         If PageSetupUI.HiddenForceShow Then IsHiddenPage = False
         '若页面错误，或尚未加载，则继续
         If IsLoad AndAlso Not IsHiddenPage Then Return
@@ -20,8 +20,8 @@ Public Class PageOtherLeft
             ItemHelp.SetChecked(True, False, False)
         ElseIf Not Settings.Get(Of Boolean)("UiHiddenOtherAbout") Then
             ItemAbout.SetChecked(True, False, False)
-        Else
-            ItemTest.SetChecked(True, False, False)
+        'Else
+        '    ItemTest.SetChecked(True, False, False)
         End If
     End Sub
     Private Sub PageOtherLeft_Unloaded(sender As Object, e As RoutedEventArgs) Handles Me.Unloaded
@@ -41,15 +41,15 @@ Public Class PageOtherLeft
             PageID = FormMain.PageSubType.OtherHelp
         ElseIf Not Settings.Get(Of Boolean)("UiHiddenOtherAbout") Then
             PageID = FormMain.PageSubType.OtherAbout
-        Else
-            PageID = FormMain.PageSubType.OtherTest
+        'Else
+        '    PageID = FormMain.PageSubType.OtherTest
         End If
     End Sub
 
     ''' <summary>
     ''' 勾选事件改变页面。
     ''' </summary>
-    Private Sub PageCheck(sender As FrameworkElement, e As RouteEventArgs) Handles ItemAbout.Check, ItemHelp.Check, ItemTest.Check
+    Private Sub PageCheck(sender As FrameworkElement, e As RouteEventArgs) Handles ItemAbout.Check, ItemHelp.Check
         '尚未初始化控件属性时，sender.Tag 为 Nothing，会导致切换到页面 0
         '若使用 IsLoaded，则会导致模拟点击不被执行（模拟点击切换页面时，控件的 IsLoaded 为 False）
         If sender.Tag IsNot Nothing Then PageChange(Val(sender.Tag))
@@ -125,11 +125,11 @@ Public Class PageOtherLeft
     End Sub
 
     '打开网页
-    Private Sub TryFeedback(sender As Object, e As RouteEventArgs) Handles ItemFeedback.Changed
-        If Not ItemFeedback.Checked Then Return
-        TryFeedback()
-        e.Handled = True
-    End Sub
+    'Private Sub TryFeedback(sender As Object, e As RouteEventArgs) Handles ItemFeedback.Changed
+    '    If Not ItemFeedback.Checked Then Return
+    '    TryFeedback()
+    '    e.Handled = True
+    'End Sub
     Public Shared Sub TryFeedback()
         If False.Equals(PageSetupSystem.IsLauncherNewest) Then
             If MyMsgBox($"你的 PCL 不是最新版，因此无法提交反馈。{vbCrLf}请在更新后，确认该问题在最新版中依然存在，然后再提交反馈。", "无法提交反馈", "更新", "取消") = 1 Then
@@ -145,11 +145,11 @@ Public Class PageOtherLeft
                 OpenWebsite("https://github.com/Meloong-Git/PCL/issues/")
         End Select
     End Sub
-    Private Sub TryVote(sender As Object, e As RouteEventArgs) Handles ItemVote.Changed
-        If Not ItemVote.Checked Then Return
-        TryVote()
-        e.Handled = True
-    End Sub
+    'Private Sub TryVote(sender As Object, e As RouteEventArgs) Handles ItemVote.Changed
+    '    If Not ItemVote.Checked Then Return
+    '    TryVote()
+    '    e.Handled = True
+    'End Sub
     Public Shared Sub TryVote()
         If MyMsgBox("是否要打开新功能投票网页？" & vbCrLf & "如果无法打开该网页，请使用 VPN 改善网络环境。",
                     "新功能投票", "打开", "取消") = 2 Then Return

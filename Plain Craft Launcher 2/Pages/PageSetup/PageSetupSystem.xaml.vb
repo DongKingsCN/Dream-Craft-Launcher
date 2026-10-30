@@ -58,30 +58,30 @@ Public Class PageSetupSystem
         End If
     End Sub
 
-    '识别码/土豆码替代入口
-    Private Sub BtnSystemIdentify_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemIdentify.Click
-        PageOtherAbout.CopyIdentify()
-    End Sub
-    Private Sub BtnSystemUnlock_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemUnlock.Click
-        InputPotatoCode(False)
-    End Sub
+    '识别码/土豆码替代入口（控件已精简移除）
+    'Private Sub BtnSystemIdentify_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemIdentify.Click
+    '    PageOtherAbout.CopyIdentify()
+    'End Sub
+    'Private Sub BtnSystemUnlock_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemUnlock.Click
+    '    InputPotatoCode(False)
+    'End Sub
 
     '调试模式
     Private Sub CheckDebugMode_Change() Handles CheckDebugMode.Change
         If AniControlEnabled = 0 Then Hint("部分调试信息将在刷新或启动器重启后切换显示！",, False)
     End Sub
 
-    '自动更新
-    Private Sub ComboSystemActivity_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles ComboSystemActivity.SelectionChanged
-        If AniControlEnabled <> 0 Then Return
-        If ComboSystemActivity.SelectedIndex <> 2 Then Return
-        If MyMsgBox("若选择此项，即使在将来出现严重问题时，你也无法获取相关通知。" & vbCrLf &
-                    "例如，如果发现某个版本游戏存在严重 Bug，你可能就会因为无法得到通知而导致无法预知的后果。" & vbCrLf & vbCrLf &
-                    "一般选择 仅在有重要通知时显示公告 就可以让你尽量不受打扰了。" & vbCrLf &
-                    "除非你在制作服务器整合包，或时常手动更新启动器，否则极度不推荐选择此项！", "警告", "我知道我在做什么", "取消", IsWarn:=True) = 2 Then
-            If e.RemovedItems.Count > 0 Then ComboSystemActivity.SelectedItem = e.RemovedItems(0)
-        End If
-    End Sub
+    '自动更新 / 启动器公告（控件已精简移除）
+    'Private Sub ComboSystemActivity_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles ComboSystemActivity.SelectionChanged
+    '    If AniControlEnabled <> 0 Then Return
+    '    If ComboSystemActivity.SelectedIndex <> 2 Then Return
+    '    If MyMsgBox("若选择此项，即使在将来出现严重问题时，你也无法获取相关通知。" & vbCrLf &
+    '                "例如，如果发现某个版本游戏存在严重 Bug，你可能就会因为无法得到通知而导致无法预知的后果。" & vbCrLf & vbCrLf &
+    '                "一般选择 仅在有重要通知时显示公告 就可以让你尽量不受打扰了。" & vbCrLf &
+    '                "除非你在制作服务器整合包，或时常手动更新启动器，否则极度不推荐选择此项！", "警告", "我知道我在做什么", "取消", IsWarn:=True) = 2 Then
+    '        If e.RemovedItems.Count > 0 Then ComboSystemActivity.SelectedItem = e.RemovedItems(0)
+    '    End If
+    'End Sub
 
     ''' <summary>
     ''' 启动器是否已经是最新版？
@@ -102,10 +102,10 @@ Public Class PageSetupSystem
 
 #Region "导出 / 导入设置"
 
-    Private Sub BtnSystemSettingExp_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemSettingExp.Click
+    Private Sub BtnSystemExport_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemExport.Click
         Hint("该功能尚在开发中！")
     End Sub
-    Private Sub BtnSystemSettingImp_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemSettingImp.Click
+    Private Sub BtnSystemImport_Click(sender As Object, e As MouseButtonEventArgs) Handles BtnSystemImport.Click
         Hint("该功能尚在开发中！")
     End Sub
 
